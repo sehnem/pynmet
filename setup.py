@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
-classifiers = ['Development Status :: 1 - Alpha',
+classifiers = ['Development Status :: 0.1 - Alpha',
                'Operating System :: POSIX :: Linux',
-               'License :: OSI Approved :: MIT License',
+               'License :: OSI Approved :: Python Software Foundation License',
+               'License :: OSI Approved :: GNU General Public License (GPL)',
                'Intended Audience :: Developers',
-               'Programming Language :: Python :: 2.7',
                'Programming Language :: Python :: 3',
                'Topic :: Software Development',
                'Topic :: System :: Hardware']
