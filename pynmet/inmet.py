@@ -19,7 +19,7 @@ class inmet:
 
     
     def __init__(self, code = None, dia_i = None, dia_f = None, lat = None,
-                 lon = None):
+                 lon = None, tz = 'UTC'):
         
         if dia_i is None:
             self.dia_i = self.dia_f = dt.date.today().strftime("%d/%m/%Y")
@@ -39,6 +39,7 @@ class inmet:
             self.lat = inmet.sites.loc[code].lat
             self.lon = inmet.sites.loc[code].lon
             self.alt = inmet.sites.loc[code].alt
+            self.tz = tz
             
     def get_from_web(self):
         decoded = base64.b64encode(self.code.encode('ascii')).decode()
@@ -66,4 +67,6 @@ class inmet:
         dados = dados.dropna(how='all')
         dados = dados.convert_objects(convert_numeric=True)
         dados.set_inmet_header()
+        dados = dados.tz_localize('UTC')
+        dados = dados.tz_convert(self.tz)
         return dados
