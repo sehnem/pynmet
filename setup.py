@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-classifiers = ['Development Status :: 0.1 - Alpha',
+classifiers = ['Development Status :: 1 - Alpha',
                'Operating System :: POSIX :: Linux',
                'License :: OSI Approved :: Python Software Foundation License',
                'License :: OSI Approved :: GNU General Public License (GPL)',
