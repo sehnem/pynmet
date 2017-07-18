@@ -10,7 +10,7 @@ classifiers = ['Development Status :: 2 - Pre-Alpha',
                'Topic :: System :: Hardware']
 
 setup(name = 'pynmet',
-      version = '0.1',
+      version = '0.1.1',
       author = 'Josué M. Sehnem',
       author_email = 'josue@sehnem.com',
       description = 'Python code to retrieve and plot inmet meteorological data',
