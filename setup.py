@@ -10,7 +10,7 @@ classifiers = ['Development Status :: 2 - Pre-Alpha',
                'Topic :: System :: Hardware']
 
 setup(name = 'pynmet',
-      version = '0.1.1',
+      version = '0.1.2',
       author = 'Josué M. Sehnem',
       author_email = 'josue@sehnem.com',
       description = 'Python code to retrieve and plot inmet meteorological data',
@@ -22,4 +22,5 @@ setup(name = 'pynmet',
       install_requires = ['pandas', 'bs4'],
       packages = find_packages(),
       include_package_data=True,
+      package_data={'data':['data/estacoes.csv']}
       zip_safe=False)
