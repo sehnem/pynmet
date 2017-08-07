@@ -22,5 +22,4 @@ setup(name = 'pynmet',
       install_requires = ['pandas', 'bs4'],
       packages = find_packages(),
       include_package_data=True,
-      package_data={'data':['data/estacoes.csv']},
       zip_safe=False)
