@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 class InmetSeries(pd.Series):
     
     @property
@@ -9,7 +10,8 @@ class InmetSeries(pd.Series):
     
     def printok(self):
         print('OK')
-        
+
+
 class InmetDataFrame(pd.DataFrame):
     
     header = ['Temperatura', 'Temperatura_max', 'Temperatura_min', 'Umidade',
@@ -38,7 +40,7 @@ class InmetDataFrame(pd.DataFrame):
     def set_inmet_header(self):
         self.columns = InmetDataFrame.header
     
-    def plot_chuva(self):
-        ax = self['Precipitacao'].plot.bar()
-        ax.set_xlabel('')
-        ax.set_ylabel(InmetDataFrame.unidades['Precipitacao'])
+#    def plot_chuva(self):
+#        ax = self['Precipitacao'].plot.bar()
+#        ax.set_xlabel('')
+#        ax.set_ylabel(InmetDataFrame.unidades['Precipitacao'])
