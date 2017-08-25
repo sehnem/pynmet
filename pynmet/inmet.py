@@ -2,7 +2,6 @@ import os
 import pandas as pd
 import datetime as dt
 from .getdata import get_from_web
-from .frame import InmetDataFrame
 
 
 class inmet:
@@ -11,6 +10,20 @@ class inmet:
     filepath = os.path.join(pynmet_path, 'data', 'estacoes.csv')
     sites = pd.read_csv(filepath, index_col='codigo', dtype={'codigo':str,
                                                              'alt':int})
+    
+    header = ['Temperatura', 'Temperatura_max', 'Temperatura_min', 'Umidade',
+              'Umidade_max', 'Umidade_min', 'Ponto_orvalho', 
+              'Ponto_orvalho_max', 'Ponto_orvalho_min', 'Pressao',
+              'Pressao_max', 'Pressao_min', 'Vento_velocidade','Vento_direcao',
+              'Vento_rajada', 'Radiacao', 'Precipitacao']
+    
+    unidades = {'Temperatura':'°C', 'Temperatura_max':'°C',
+                'Temperatura_min':'°C', 'Umidade':'%',
+                'Umidade_max':'%', 'Umidade_min':'%', 'Ponto_orvalho':'°C', 
+                'Ponto_orvalho_max':'°C', 'Ponto_orvalho_min':'°C',
+                'Pressao':'hPa', 'Pressao_max':'hPa', 'Pressao_min':'hPa',
+                'Vento_velocidade':'m/s','Vento_direcao':'°',
+                'Vento_rajada':'m/s', 'Radiacao':'kJ/m²', 'Precipitacao':'mm'}
     
     def __init__(self, code = None, dia_i = None, dia_f = None, lat = None,
                  lon = None, tz = 'UTC'):

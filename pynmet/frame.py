@@ -1,5 +1,4 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
 class InmetSeries(pd.Series):
@@ -7,9 +6,6 @@ class InmetSeries(pd.Series):
     @property
     def _constructor(self):
         return InmetSeries
-    
-    def printok(self):
-        print('OK')
 
 
 class InmetDataFrame(pd.DataFrame):
