@@ -25,19 +25,7 @@ class inmet:
                 'Vento_velocidade':'m/s','Vento_direcao':'°',
                 'Vento_rajada':'m/s', 'Radiacao':'kJ/m²', 'Precipitacao':'mm'}
     
-    def __init__(self, code = None, dia_i = None, dia_f = None, lat = None,
-                 lon = None, tz = 'UTC'):
-        
-        if dia_i is None:
-            self.dia_i = self.dia_f = dt.date.today().strftime("%d/%m/%Y")
-        elif dia_f is None:
-            self.dia_i = self.dia_f = dia_i
-        else:
-            self.dia_i = dia_i
-            self.dia_f = dia_f
-        
-        if code is None:
-            lat 
+    def __init__(self, code = None, db = os.getenv("HOME") + '/.inmetdb.hdf'):
 
         if code in inmet.sites.index.values:
             self.code = code
@@ -46,10 +34,8 @@ class inmet:
             self.lat = inmet.sites.loc[code].lat
             self.lon = inmet.sites.loc[code].lon
             self.alt = inmet.sites.loc[code].alt
-            self.tz = tz
         
         self.dados = get_from_web(self.code, self.dia_i, self.dia_f)
-        self.dados = self.dados.tz_convert(self.tz)
     
     def plot_chuva(self):
         ax = self.dados['Precipitacao'].plot.bar()
