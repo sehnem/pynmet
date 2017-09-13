@@ -6,6 +6,8 @@ import numpy as np
 import datetime as dt
 from bs4 import BeautifulSoup
 from io import StringIO
+from pathlib import Path
+
 
 pg_form = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?'
 pg_data = 'http://www.inmet.gov.br/sonabra/pg_downDadosCodigo_sim.php'
@@ -18,7 +20,8 @@ header = ['Temperatura', 'Temperatura_max', 'Temperatura_min', 'Umidade',
 
 pynmet_path = os.path.dirname(os.path.abspath(__file__))
 filepath = os.path.join(pynmet_path, 'data', 'estacoes.csv')
-sites = pd.read_csv(filepath, index_col='codigo', dtype={'codigo':str, 'alt':int})
+sites = pd.read_csv(filepath, index_col='codigo',
+                    dtype={'codigo':str, 'alt':int})
     
 
 def get_from_web(code, dia_i, dia_f):
@@ -34,7 +37,8 @@ def get_from_web(code, dia_i, dia_f):
                     'dtafim': dia_f, 'aleaNum': encoded}
     session.post(est, post_request)
     data_str = session.get(pg_data).content.decode()
-    data_str = data_str.replace('\r', '').replace('\n', '').replace('\t', '').replace('<br>', '\n').replace('////', '')
+    data_str = data_str.replace('\r', '').replace('\n', '').replace('\t', '')
+    data_str = data_str.replace('<br>', '\n').replace('////', '')
     dados = pd.read_csv(StringIO(data_str))
     dados[['data','hora']] = dados[['data','hora']].astype(str)
     data = pd.to_datetime(dados['data'] + dados['hora'], format="%d/%m/%Y%H")
@@ -43,6 +47,28 @@ def get_from_web(code, dia_i, dia_f):
     dados.columns = header
     dados = dados.tz_localize('UTC')
     return dados
+
+
+def get_from_ldb(code, db = os.getenv("HOME") + '~/.inmetdb.hdf'):
+    
+    dia_f = dt.date.today().strftime("%d/%m/%Y")
+    db = Path(db)
+    if db.is_file():
+        try:
+            dados = pd.read_hdf(db, code)
+            dia_i = dados.dados.index.min().strftime('%d/%m/%Y')
+        except:
+            dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime("%d/%m/%Y")
+    else:
+        dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime("%d/%m/%Y")
+    
+    if 'dados' in locals():
+        last_data = get_from_web(code, dia_i, dia_f)
+        dados.append(last_data)
+        dados.to_hdf(db, str(code), format='table', dropna=True)
+    else:
+        dados = get_from_web(code, dia_i, dia_f)
+        dados.to_hdf(db, str(code), format='table', dropna=True)
 
 
 def update_all(path = None):
@@ -58,7 +84,7 @@ def update_all(path = None):
     for code in sites.index:
         try:
             dados = get_from_web(code, dia_i, dia_f)
-            dados.to_hdf(path, str(code), format='table', dropna=True, complevel=9, complib='zlib')
+            dados.to_hdf(path, str(code), format='table', dropna=True)
             print('{}: OK'.format(code))
         except:
             print('{}: ERRO'.format(code))

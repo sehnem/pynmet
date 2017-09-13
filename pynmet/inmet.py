@@ -49,7 +49,7 @@ class inmet:
             self.tz = tz
         
         self.dados = get_from_web(self.code, self.dia_i, self.dia_f)
-        self.dados.tz_convert(self.tz)
+        self.dados = self.dados.tz_convert(self.tz)
     
     def plot_chuva(self):
         ax = self.dados['Precipitacao'].plot.bar()
