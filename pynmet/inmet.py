@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import datetime as dt
-from .getdata import get_from_web
+from .getdata import *
 
 
 class inmet:
@@ -35,7 +35,7 @@ class inmet:
             self.lon = inmet.sites.loc[code].lon
             self.alt = inmet.sites.loc[code].alt
         
-        self.dados = get_from_web(self.code, self.dia_i, self.dia_f)
+        self.dados = get_from_ldb(code, db)
     
     def plot_chuva(self):
         ax = self.dados['Precipitacao'].plot.bar()
