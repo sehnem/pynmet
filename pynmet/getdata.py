@@ -49,14 +49,14 @@ def get_from_web(code, dia_i, dia_f):
     return dados
 
 
-def get_from_ldb(code, db = os.getenv("HOME") + '~/.inmetdb.hdf'):
+def get_from_ldb(code, db = os.getenv("HOME") + '/.inmetdb.hdf'):
     
     dia_f = dt.date.today().strftime("%d/%m/%Y")
     db = Path(db)
     if db.is_file():
         try:
             dados = pd.read_hdf(db, code)
-            dia_i = dados.dados.index.min().strftime('%d/%m/%Y')
+            dia_i = dados.index.max().strftime('%d/%m/%Y')
         except:
             dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime("%d/%m/%Y")
     else:
@@ -69,6 +69,7 @@ def get_from_ldb(code, db = os.getenv("HOME") + '~/.inmetdb.hdf'):
     else:
         dados = get_from_web(code, dia_i, dia_f)
         dados.to_hdf(db, str(code), format='table', dropna=True)
+    return dados
 
 
 def update_all(path = None):
