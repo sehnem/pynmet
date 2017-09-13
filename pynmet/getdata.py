@@ -81,5 +81,3 @@ def update_all(db = os.getenv("HOME") + '/.inmetdb.hdf'):
             print('{}: UPDATED'.format(code))
         except:
             print('{}: ERRO'.format(code))
-
-

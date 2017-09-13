@@ -41,4 +41,3 @@ class inmet:
         ax = self.dados['Precipitacao'].plot.bar()
         ax.set_xlabel('')
         ax.set_ylabel(InmetDataFrame.unidades['Precipitacao'])
-
