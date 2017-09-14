@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import datetime as dt
-from .getdata import *
+from .getdata import get_from_ldb, get_from_web, update_all
 
 
 class inmet:
