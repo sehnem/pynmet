@@ -38,6 +38,4 @@ class inmet:
         self.dados = get_from_ldb(code, db)
     
     def plot_chuva(self):
-        ax = self.dados['Precipitacao'].plot.bar()
-        ax.set_xlabel('')
-        ax.set_ylabel(InmetDataFrame.unidades['Precipitacao'])
+        pass

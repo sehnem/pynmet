@@ -1,2 +1,2 @@
 from .inmet import inmet
-from .frame import InmetDataFrame
+from .getdata import update_all
