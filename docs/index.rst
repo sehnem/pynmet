@@ -6,16 +6,16 @@
 Pynmet
 ========
 
-$Pacote para aquisição automática dos dados de estações automáticas do INMET
+Pacote para aquisição automática dos dados de estações automáticas do INMET
 
-   import pynmet
-   # Código da estação ex: A803
-   estacao = pynmet.inmet('A803')
+import pynmet
+# Código da estação ex: A803
+estacao = pynmet.inmet('A803')
 
 Funções
 ========
 
-    Em construção
+Em construção
 
 Contribute
 ========
