@@ -8,9 +8,11 @@ Pynmet
 
 Pacote para aquisição automática dos dados de estações automáticas do INMET
 
-import pynmet
-# Código da estação ex: A803
-estacao = pynmet.inmet('A803')
+.. code-block:: python
+
+  import pynmet
+  # Código da estação ex: A803
+  estacao = pynmet.inmet('A803')
 
 Funções
 ========
