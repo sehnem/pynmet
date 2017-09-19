@@ -8,11 +8,11 @@ Welcome to pynmet's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   Instalação
 
 
-
-   $Pynmet
+   Pynmet
    ========
 
    $Pacote para aquisição automática dos dados de estações automáticas do INMET
