@@ -3,13 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pynmet's documentation!
-==================================
+   Contents
+   ========
 
-.. toctree::
-   :maxdepth: 2
+   .. toctree::
+      :maxdepth: 1
 
-   Instalação
+      install
 
 
    Pynmet
@@ -22,25 +22,13 @@ Welcome to pynmet's documentation!
        estacao = pynmet.inmet('A803')
 
    Funções
-   --------
+   ========
 
         Em construção
 
-   Installation
-   ------------
-
-   Instalação:
-
-       pip install pynmet
 
    Contribute
-   ----------
+   ========
 
    - Issue Tracker: github.com/sehnem/pynmet/issues
    - Source Code: github.com/sehnem/pynmet
-
-
-   License
-   -------
-
-   The project is licensed under the BSD license.
