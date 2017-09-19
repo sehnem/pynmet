@@ -39,9 +39,10 @@ def get_from_web(code, dia_i, dia_f):
     data_str = session.get(pg_data).content.decode()
     data_str = data_str.replace('\r', '').replace('\n', '').replace('\t', '')
     data_str = data_str.replace('<br>', '\n').replace('////', '')
+    data_str = data_str.replace('///', '').replace('//', '').replace('/', '')
     dados = pd.read_csv(StringIO(data_str))
     dados[['data','hora']] = dados[['data','hora']].astype(str)
-    data = pd.to_datetime(dados['data'] + dados['hora'], format="%d/%m/%Y%H")
+    data = pd.to_datetime(dados['data'] + dados['hora'], format="%d%m%Y%H")
     dados.set_index(data, inplace=True)
     dados = dados.drop([' codigo_estacao', 'data', 'hora'], axis=1)
     dados.columns = header
