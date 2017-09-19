@@ -3,11 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-   Contents
-   ========
-
    .. toctree::
-      install
+      :maxdepth: 1
+
+      package_overview
+      whatsnew
+      installation
+      contributing
+      modelchain
+      timetimezones
+      clearsky
+      forecasts
+      api
+      comparison_pvlib_matlab
+      variables_style_rules
 
 
    Pynmet
