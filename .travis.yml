@@ -10,5 +10,5 @@ python:
   - "nightly"
 # command to install dependencies
 install:
-
-script:
+    - pip install -e .
+#script:
