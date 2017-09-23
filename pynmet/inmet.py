@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from .getdata import get_from_ldb, get_from_web, update_all
 
 
@@ -37,5 +38,14 @@ class inmet:
 
         self.dados = get_from_ldb(code, db)
 
-    def plot_chuva(self):
-        pass
+    def resample(self, periodo):
+        metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,
+                   'Temperatura_min': np.min, 'Umidade': np.mean,
+                   'Umidade_max': np.max, 'Umidade_min': np.min,
+                   'Ponto_orvalho': np.mean, 'Ponto_orvalho_max': np.max,
+                   'Ponto_orvalho_min': np.min, 'Pressao': np.mean,
+                   'Pressao_max': np.max, 'Pressao_min': np.min,
+                   'Vento_velocidade': np.mean, 'Vento_direcao': np.mean,
+                   'Vento_rajada': np.max, 'Radiacao': np.mean,
+                   'Precipitacao': np.sum}
+        self.dados.resample(periodo).agg(metodos)
