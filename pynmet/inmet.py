@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
-from .getdata import get_from_ldb, get_from_web, update_all
+from .getdata import get_from_ldb
+from .calculations import avg_wind
 
 
 class inmet:
@@ -45,7 +46,7 @@ class inmet:
                    'Ponto_orvalho': np.mean, 'Ponto_orvalho_max': np.max,
                    'Ponto_orvalho_min': np.min, 'Pressao': np.mean,
                    'Pressao_max': np.max, 'Pressao_min': np.min,
-                   'Vento_velocidade': np.mean, 'Vento_direcao': np.mean,
+                   'Vento_velocidade': np.mean, 'Vento_direcao': avg_wind,
                    'Vento_rajada': np.max, 'Radiacao': np.mean,
                    'Precipitacao': np.sum}
-        self.dados.resample(periodo).agg(metodos)
+        self.dados = self.dados.resample(periodo).agg(metodos)
