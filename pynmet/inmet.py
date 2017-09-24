@@ -50,3 +50,6 @@ class inmet:
                    'Vento_rajada': np.max, 'Radiacao': np.mean,
                    'Precipitacao': np.sum}
         self.dados = self.dados.resample(periodo).agg(metodos)
+
+    def set_timezone(self, tz='America/Sao_Paulo'):
+        self.dados = self.dados.tz_convert(tz)

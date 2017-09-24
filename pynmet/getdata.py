@@ -38,10 +38,10 @@ def get_from_web(code, dia_i, dia_f):
     data_str = session.get(pg_data).content.decode()
     data_str = data_str.replace('\r', '').replace('\n', '').replace('\t', '')
     data_str = data_str.replace('<br>', '\n').replace('////', '')
-    data_str = data_str.replace('///', '').replace('//', '').replace('/', '')
+    data_str = data_str.replace('///', '').replace('//', '').replace('/,', ',')
     dados = pd.read_csv(StringIO(data_str))
     dados[['data', 'hora']] = dados[['data', 'hora']].astype(str)
-    data = pd.to_datetime(dados['data'] + dados['hora'], format="%d%m%Y%H")
+    data = pd.to_datetime(dados['data'] + dados['hora'], format="%d/%m/%Y%H")
     dados.set_index(data, inplace=True)
     dados = dados.drop([' codigo_estacao', 'data', 'hora'], axis=1)
     dados.columns = header
@@ -65,7 +65,7 @@ def get_from_ldb(code, db):
 
     if 'dados' in locals():
         last_data = get_from_web(code, dia_i, dia_f)
-        dados.append(last_data)
+        dados = dados.append(last_data)
         dados.to_hdf(db, str(code), format='table', dropna=True)
     else:
         dados = get_from_web(code, dia_i, dia_f)
@@ -77,8 +77,9 @@ def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf'):
 
     for code in sites.index:
         try:
-            dados = get_from_ldb(code, db)
-            dados.to_hdf(db, str(code), format='table', dropna=True)
+            get_from_ldb(code, db)
+            # dados = get_from_ldb(code, db)
+            # dados.to_hdf(db, str(code), format='table', dropna=True)
             print('{}: UPDATED'.format(code))
         except:
             print('{}: ERRO'.format(code))
