@@ -78,8 +78,6 @@ def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf'):
     for code in sites.index:
         try:
             get_from_ldb(code, db)
-            # dados = get_from_ldb(code, db)
-            # dados.to_hdf(db, str(code), format='table', dropna=True)
             print('{}: UPDATED'.format(code))
         except:
             print('{}: ERRO'.format(code))
