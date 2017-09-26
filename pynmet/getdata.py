@@ -49,11 +49,19 @@ def get_from_web(code, dia_i, dia_f):
     return dados
 
 
-def get_from_ldb(code, db):
+def get_from_ldb(code, db, local):
 
     fmt = "%d/%m/%Y"
     dia_f = dt.date.today().strftime(fmt)
     db = Path(db)
+
+    if local is True:
+        try:
+            dados = pd.read_hdf(db, code)
+        except:
+            dados = pd.DataFrame(columns=header)
+        return dados
+
     if db.is_file():
         try:
             dados = pd.read_hdf(db, code)

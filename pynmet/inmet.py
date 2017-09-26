@@ -42,7 +42,8 @@ class inmet:
                 'Vento_rajada': 'm/s', 'Radiacao': 'kJ/m²',
                 'Precipitacao': 'mm'}
 
-    def __init__(self, code=None, db=os.getenv("HOME") + '/.inmetdb.hdf'):
+    def __init__(self, code, db=os.getenv("HOME") + '/.inmetdb.hdf',
+                 local=False):
         if code in inmet.sites.index.values:
             self.code = code
             self.cod_OMM = inmet.sites.loc[code].cod_OMM
@@ -50,7 +51,7 @@ class inmet:
             self.lat = inmet.sites.loc[code].lat
             self.lon = inmet.sites.loc[code].lon
             self.alt = inmet.sites.loc[code].alt
-        self.dados = get_from_ldb(code, db)
+        self.dados = get_from_ldb(code, db, local)
 
     def resample(self, periodo):
         metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,
