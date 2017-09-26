@@ -47,7 +47,7 @@ cmap = plt.get_cmap('Blues')
 sites = pynmet.inmet.sites.index
 #sites = ['A803']
 
-lon, lat, temp = station_test_data('Precipitacao', sites, '2017-01', 'm')
+lon, lat, temp = station_test_data('Precipitacao', sites, '2017-02', 'm')
 lon = np.array(lon)
 lat = np.array(lat)
 temp = np.array(temp)
