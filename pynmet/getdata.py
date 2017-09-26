@@ -49,7 +49,7 @@ def get_from_web(code, dia_i, dia_f):
     return dados
 
 
-def get_from_ldb(code, db, local = False):
+def get_from_ldb(code, db, local=False):
 
     fmt = "%d/%m/%Y"
     dia_f = dt.date.today().strftime(fmt)
