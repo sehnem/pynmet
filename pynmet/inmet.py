@@ -1,3 +1,9 @@
+"""
+Esse módulo é utilizado para realizar a interface com dados do inmet definindo
+classes e os principais métodos associados a elas. É o principal método do
+pacote.
+"""
+
 import os
 import pandas as pd
 import numpy as np
@@ -7,6 +13,15 @@ from .calculations import avg_wind
 
 class inmet:
 
+    """
+    Classe que agrupa dados e prâmetros de um estação do inmet.
+    Parametros
+    ----------
+    code : string
+        O código da estação do INMET, ex: 'A803'
+    db : string, default $HOME/.inmetdb.hdf
+        Banco de dados local utilizado para armazenamento de dados
+    """
     pynmet_path = os.path.dirname(os.path.abspath(__file__))
     filepath = os.path.join(pynmet_path, 'data', 'estacoes.csv')
     sites = pd.read_csv(filepath, index_col='codigo', dtype={'codigo': str,
@@ -27,8 +42,8 @@ class inmet:
                 'Vento_rajada': 'm/s', 'Radiacao': 'kJ/m²',
                 'Precipitacao': 'mm'}
 
-    def __init__(self, code=None, db=os.getenv("HOME") + '/.inmetdb.hdf'):
-
+    def __init__(self, code, db=os.getenv("HOME") + '/.inmetdb.hdf',
+                 local=False):
         if code in inmet.sites.index.values:
             self.code = code
             self.cod_OMM = inmet.sites.loc[code].cod_OMM
@@ -36,8 +51,7 @@ class inmet:
             self.lat = inmet.sites.loc[code].lat
             self.lon = inmet.sites.loc[code].lon
             self.alt = inmet.sites.loc[code].alt
-
-        self.dados = get_from_ldb(code, db)
+        self.dados = get_from_ldb(code, db, local)
 
     def resample(self, periodo):
         metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,
@@ -53,3 +67,9 @@ class inmet:
 
     def set_timezone(self, tz='America/Sao_Paulo'):
         self.dados = self.dados.tz_convert(tz)
+
+
+class inmet_region(object):
+
+    def __init__(self, arg):
+        self.arg = arg
