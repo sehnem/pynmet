@@ -1,0 +1,14 @@
+image: python:3.6.4-stretch
+
+pages:
+  script:
+  - pip install sphinx numpy sphinx_rtd_theme versioneer
+  - python setup.py install
+  - rm -rf docs/source && sphinx-apidoc -e -f -o docs/source/ pynmet/
+  - cd docs/ && make html && cd ../
+  - mv docs/_build/html/ public/
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
