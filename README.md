@@ -8,7 +8,7 @@ O pynmet é um pacote para obtenção automática de dados das estações autom�
 Documentação
 =============
 
-A documentação está disponível em (https://sehnem.gitlab.io/pynmet/) (em desenvolvimento).
+A documentação está disponível em https://sehnem.gitlab.io/pynmet/.
 
 
 Instalação
@@ -23,4 +23,4 @@ pip install pynmet
 License
 =======
 
-GPL3
+GPLv3
