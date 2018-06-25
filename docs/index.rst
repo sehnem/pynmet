@@ -40,5 +40,5 @@ A primeira atualização demora mais de 1h porém novas atualizações de todas 
 Contribute
 ========
 
-- Issue Tracker: github.com/sehnem/pynmet/issues
-- Source Code: github.com/sehnem/pynmet
+- Issue Tracker: gitlab.com/sehnem/pynmet/issues
+- Source Code: gitlab.com/sehnem/pynmet
