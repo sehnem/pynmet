@@ -23,17 +23,29 @@ sites = pd.read_csv(filepath, index_col='codigo',
                     dtype={'codigo': str, 'alt': int})
 
 
-def get_from_web(code, dia_i, dia_f):
+def b64_inmet(code, scheme):
+    '''
+    encode the inmet captcha code to be used as 
+    '''
+    ascii_code = code.encode('ascii')
+    if scheme=='decode':
+        return base64.b64decode(ascii_code).decode()
+    elif scheme=='encode':
+        return base64.b64encode(ascii_code).decode()
+    else:
+        pass
 
-    decoded = base64.b64encode(code.encode('ascii')).decode()
-    est = pg_form + decoded
+
+def get_from_web(code, dia_i, dia_f):
+    
+    est = pg_form + b64_inmet(code, 'encode')
     session = requests.session()
     page = session.get(est)
     soup = BeautifulSoup(page.content, 'lxml')
     base64Str = str(soup.findAll('img')[0])[-11:-3]
-    encoded = base64.b64decode(base64Str.encode('ascii')).decode()
+    solved = b64_inmet(code, 'decode')
     post_request = {'aleaValue': base64Str, 'dtaini': dia_i,
-                    'dtafim': dia_f, 'aleaNum': encoded}
+                    'dtafim': dia_f, 'aleaNum': solved}
     session.post(est, post_request)
     data_str = session.get(pg_data).content.decode()
     data_str = data_str.replace('\r', '').replace('\n', '').replace('\t', '')
