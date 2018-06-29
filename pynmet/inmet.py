@@ -51,7 +51,7 @@ class inmet:
             self.lat = inmet.sites.loc[code].lat
             self.lon = inmet.sites.loc[code].lon
             self.alt = inmet.sites.loc[code].alt
-        self.dados = get_from_ldb(code, db, local)
+        self.dados = get_from_ldb(code, local, db)
 
     def resample(self, periodo):
         metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,
