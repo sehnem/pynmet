@@ -7,7 +7,7 @@ pacote.
 import os
 import pandas as pd
 import numpy as np
-from .getdata import get_from_ldb
+from .getdata import get_data
 from .calculations import avg_wind
 
 
@@ -51,7 +51,7 @@ class inmet:
             self.lat = inmet.sites.loc[code].lat
             self.lon = inmet.sites.loc[code].lon
             self.alt = inmet.sites.loc[code].alt
-        self.dados = get_from_ldb(code, local, db)
+        self.dados = get_data(code, local, db)
 
     def resample(self, periodo):
         metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,

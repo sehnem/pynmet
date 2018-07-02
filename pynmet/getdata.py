@@ -126,20 +126,30 @@ def read_db(code, engine):
     return dados
 
 
-#def from_old_db(engine, path=None):
-#    '''
-#    '''
-#    fmt = "%d/%m/%Y"
-#    if path==None:
-#        path = os.getenv("HOME") + '/.inmetdb.hdf'
-#    
-#    try:
-#        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
-#    except:
-#        pass
+def upgrade_db(engine, path=None):
+    '''
+    '''
+    if path==None:
+        path = os.getenv("HOME") + '/.inmetdb.hdf'
+    
+    dados = pd.read_hdf(code)
+    
+    if engine.dialect.has_table(engine, code):
+        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
+        dados = dados[~dados.index.isin(db)]
+        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
+    else:
+        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
+    
+    
+    try:
+        
+        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
+    except:
+        pass
 
 
-def get_from_ldb(code, local=False, db=None):
+def get_data(code, local=False, db=None):
     '''
     '''
     engine = db_engine()
