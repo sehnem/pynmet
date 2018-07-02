@@ -4,8 +4,8 @@ import requests
 import pandas as pd
 import datetime as dt
 from bs4 import BeautifulSoup
+from sqlalchemy import create_engine
 from io import StringIO
-from pathlib import Path
 
 
 pg_form = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?'
@@ -23,69 +23,140 @@ sites = pd.read_csv(filepath, index_col='codigo',
                     dtype={'codigo': str, 'alt': int})
 
 
-def get_from_web(code, dia_i, dia_f):
+def b64_inmet(code, scheme):
+    '''
+    encode the inmet captcha code to be used as 
+    '''
+    ascii_code = code.encode('ascii')
+    if scheme=='decode':
+        return base64.b64decode(ascii_code)
+    elif scheme=='encode':
+        return base64.b64encode(ascii_code).decode()
+    else:
+        pass
 
-    decoded = base64.b64encode(code.encode('ascii')).decode()
-    est = pg_form + decoded
+
+def clean_data_str(data_str):
+    '''
+    Limpa dados recuperados do INMET
+    '''
+    data_str = data_str.replace('\r', '').replace('\n', '')
+    data_str = data_str.replace('\t', '')
+    data_str = data_str.replace('<br>', '\n')
+    data_str = data_str.replace('////', '').replace('///', '').replace('//', '')
+    data_str = data_str.replace('/,', ',')
+    
+    return data_str
+    
+
+
+def get_from_inmet(code, dia_i, dia_f):
+    '''
+    Site do inmet
+    '''
+    est = pg_form + b64_inmet(code, 'encode')
     session = requests.session()
-    page = session.get(est)
-    soup = BeautifulSoup(page.content, 'lxml')
-    base64Str = str(soup.findAll('img')[0])[-11:-3]
-    encoded = base64.b64decode(base64Str.encode('ascii')).decode()
-    post_request = {'aleaValue': base64Str, 'dtaini': dia_i,
-                    'dtafim': dia_f, 'aleaNum': encoded}
-    session.post(est, post_request)
-    data_str = session.get(pg_data).content.decode()
-    data_str = data_str.replace('\r', '').replace('\n', '').replace('\t', '')
-    data_str = data_str.replace('<br>', '\n').replace('////', '')
-    data_str = data_str.replace('///', '').replace('//', '').replace('/,', ',')
-    dados = pd.read_csv(StringIO(data_str))
-    dados[['data', 'hora']] = dados[['data', 'hora']].astype(str)
-    data = pd.to_datetime(dados['data'] + dados['hora'], format="%d/%m/%Y%H")
-    dados.set_index(data, inplace=True)
-    dados = dados.drop([' codigo_estacao', 'data', 'hora'], axis=1)
-    dados.columns = header
-    dados = dados.tz_localize('UTC')
-    return dados
+    with session.get(est) as page:
+        soup = BeautifulSoup(page.content, 'lxml')
+        base64Str = str(soup.findAll('img')[0])[-11:-3]
+        solved = b64_inmet(code, 'decode')
+        post_request = {'aleaValue': base64Str,
+                        'dtaini': dia_i,
+                        'dtafim': dia_f,
+                        'aleaNum': solved}
+        session.post(est, post_request)
+        data_str = session.get(pg_data).content.decode()
+
+    data_str = clean_data_str(data_str)
+    df = pd.read_csv(StringIO(data_str))
+    df[['data', 'hora']] = df[['data', 'hora']].astype(str)
+    data = pd.to_datetime(df['data'] + df['hora'], format="%d/%m/%Y%H")
+    df.set_index(data, inplace=True)
+    df = df.drop([' codigo_estacao', 'data', 'hora'], axis=1)
+    df.columns = header
+    df= df.dropna(how='all')
+    
+    return df
 
 
-def get_from_ldb(code, db, local=False):
+def db_engine(path=None):
+    '''
+    Cria a engine do banco de dados
+    '''
+    if path==None:
+        home = os.getenv("HOME")
+        cache_f = '/.cache/pynmet/'
+        path = home + cache_f
+        if not os.path.exists(path):
+            os.makedirs(path)
+    engine = create_engine('sqlite:///' + path + 'inmet.db', echo=False)
+    
+    return engine
 
+
+def update_db(code, engine):
+    '''
+    '''
     fmt = "%d/%m/%Y"
-    dia_f = dt.date.today().strftime(fmt)
-    db = Path(db)
-
-    if local is True:
-        try:
-            dados = pd.read_hdf(db, code)
-        except:
-            dados = pd.DataFrame(columns=header)
-        return dados
-
-    if db.is_file():
-        try:
-            dados = pd.read_hdf(db, code)
-            dia_i = dados.index.max().strftime(fmt)
-        except:
-            dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
-    else:
+    dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
+    try:
+        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
+        dia_i = db_index.max().strftime(fmt)
+    except:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
-
-    if 'dados' in locals():
-        last_data = get_from_web(code, dia_i, dia_f)
-        dados = dados.append(last_data)
-        dados.to_hdf(db, str(code), format='table', dropna=True)
+    
+    dados = get_from_inmet(code, dia_i, dia_f)
+    
+    if engine.dialect.has_table(engine, code):
+        db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
+        dados = dados[~dados.index.isin(db)]
+        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
     else:
-        dados = get_from_web(code, dia_i, dia_f)
-        dados.to_hdf(db, str(code), format='table', dropna=True)
+        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
+
+
+def read_db(code, engine):
+    '''
+    '''
+    try:
+        dados = pd.read_sql(code, engine, index_col='TIME')
+    except:
+        dados = pd.DataFrame(columns=header)
+
     return dados
+
+
+#def from_old_db(engine, path=None):
+#    '''
+#    '''
+#    fmt = "%d/%m/%Y"
+#    if path==None:
+#        path = os.getenv("HOME") + '/.inmetdb.hdf'
+#    
+#    try:
+#        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
+#    except:
+#        pass
+
+
+def get_from_ldb(code, local=False, db=None):
+    '''
+    '''
+    engine = db_engine()
+    
+    if not local:
+        update_db(code, engine)
+    
+    return read_db(code, engine)
 
 
 def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf'):
-
+    
+    engine = db_engine()
+    
     for code in sites.index:
         try:
-            get_from_ldb(code, db)
+            update_db(code, engine)
             print('{}: UPDATED'.format(code))
         except:
             print('{}: ERRO'.format(code))
