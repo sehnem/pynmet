@@ -101,16 +101,15 @@ def update_db(code, engine):
     fmt = "%d/%m/%Y"
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
     if engine.dialect.has_table(engine, code):
-        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
-        dia_i = db_index.max().strftime(fmt)
+        db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
+        dia_i = db.index.max().strftime(fmt)
     else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
     
     dados = get_from_inmet(code, dia_i, dia_f)
     
     if engine.dialect.has_table(engine, code):
-        db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
-        dados = dados[~dados.index.isin(db)]
+        dados = dados[~dados.index.isin(db.index)]
 
     dados.to_sql(code, engine, if_exists='append', index_label='TIME')
 
@@ -134,8 +133,7 @@ def upgrade_db(path=None, engine=None):
     
     if path==None:
         path = os.getenv("HOME") + '/.inmetdb.hdf'
-    
-    
+
     with tables.open_file(path, mode="r") as h5file:
         list(h5file.walk_groups())
         codes = h5file.root.__dict__['__members__']
@@ -150,6 +148,18 @@ def upgrade_db(path=None, engine=None):
             dados = dados[~dados.index.isin(db_index)]
     
         dados.to_sql(code, engine, if_exists='append', index_label='TIME')
+
+
+def clean_duplicated():
+    engine = db_engine()
+    for code in sites.index:
+        try:
+            db = pd.read_sql(code, engine, index_col='TIME')
+            db = db[~db.index.duplicated(keep='first')]
+            db.to_sql(code, engine, if_exists='replace', index_label='TIME')
+        except:
+            pass
+    
 
 
 def get_data(code, local=False, db=None):
