@@ -1,6 +1,7 @@
 import base64
 import os
 import requests
+import tables
 import pandas as pd
 import datetime as dt
 from bs4 import BeautifulSoup
@@ -74,7 +75,7 @@ def get_from_inmet(code, dia_i, dia_f):
     df.set_index(data, inplace=True)
     df = df.drop([' codigo_estacao', 'data', 'hora'], axis=1)
     df.columns = header
-    df= df.dropna(how='all')
+    df = df.dropna(how='all')
     
     return df
 
@@ -99,10 +100,10 @@ def update_db(code, engine):
     '''
     fmt = "%d/%m/%Y"
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
-    try:
+    if engine.dialect.has_table(engine, code):
         db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
         dia_i = db_index.max().strftime(fmt)
-    except:
+    else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
     
     dados = get_from_inmet(code, dia_i, dia_f)
@@ -110,9 +111,8 @@ def update_db(code, engine):
     if engine.dialect.has_table(engine, code):
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
         dados = dados[~dados.index.isin(db)]
-        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
-    else:
-        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
+
+    dados.to_sql(code, engine, if_exists='append', index_label='TIME')
 
 
 def read_db(code, engine):
@@ -126,27 +126,30 @@ def read_db(code, engine):
     return dados
 
 
-def upgrade_db(engine, path=None):
+def upgrade_db(path=None, engine=None):
     '''
     '''
+    if engine==None:
+        engine = db_engine()
+    
     if path==None:
         path = os.getenv("HOME") + '/.inmetdb.hdf'
     
-    dados = pd.read_hdf(code)
     
-    if engine.dialect.has_table(engine, code):
-        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
-        dados = dados[~dados.index.isin(db)]
-        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
-    else:
-        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
+    with tables.open_file(path, mode="r") as h5file:
+        list(h5file.walk_groups())
+        codes = h5file.root.__dict__['__members__']
     
-    
-    try:
+    for code in codes:
+        dados = pd.read_hdf(path, code)
+        dados.index = dados.index.tz_localize(None)
+        dados = dados.dropna(how='all')
         
-        db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
-    except:
-        pass
+        if engine.dialect.has_table(engine, code):
+            db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
+            dados = dados[~dados.index.isin(db_index)]
+    
+        dados.to_sql(code, engine, if_exists='append', index_label='TIME')
 
 
 def get_data(code, local=False, db=None):
