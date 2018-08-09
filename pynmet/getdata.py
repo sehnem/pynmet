@@ -26,12 +26,12 @@ sites = pd.read_csv(filepath, index_col='codigo',
 
 def b64_inmet(code, scheme):
     '''
-    encode the inmet captcha code to be used as 
+    encode the inmet captcha code to be used as
     '''
     ascii_code = code.encode('ascii')
-    if scheme=='decode':
+    if scheme == 'decode':
         return base64.b64decode(ascii_code)
-    elif scheme=='encode':
+    elif scheme == 'encode':
         return base64.b64encode(ascii_code).decode()
     else:
         pass
@@ -44,9 +44,9 @@ def clean_data_str(data_str):
     data_str = data_str.replace('\r', '').replace('\n', '')
     data_str = data_str.replace('\t', '')
     data_str = data_str.replace('<br>', '\n')
-    data_str = data_str.replace('////', '').replace('///', '').replace('//', '')
-    data_str = data_str.replace('/,', ',')
-    
+    data_str = data_str.replace('////', '').replace('///', '')
+    data_str = data_str.replace('//', '').replace('/,', ',')
+
     return data_str
     
 
@@ -144,7 +144,8 @@ def upgrade_db(path=None, engine=None):
         dados = dados.dropna(how='all')
         
         if engine.dialect.has_table(engine, code):
-            db_index = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME').index
+            db_index = pd.read_sql(code, engine, columns=['TIME'],
+                                   index_col='TIME').index
             dados = dados[~dados.index.isin(db_index)]
     
         dados.to_sql(code, engine, if_exists='append', index_label='TIME')

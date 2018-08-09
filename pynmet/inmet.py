@@ -30,7 +30,7 @@ unidades = {'Temperatura': '°C', 'Temperatura_max': '°C',
 pynmet_path = os.path.dirname(os.path.abspath(__file__))
 filepath = os.path.join(pynmet_path, 'data', 'estacoes.csv')
 sites = pd.read_csv(filepath, index_col='codigo', dtype={'codigo': str,
-                                                             'alt': int})
+                                                         'alt': int})
 
 
 def inmet(code, local=False):
@@ -60,16 +60,15 @@ class MetFunctions(object):
 
     def resample(self, periodo):
         metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,
-                    'Temperatura_min': np.min, 'Umidade': np.mean,
-                    'Umidade_max': np.max, 'Umidade_min': np.min,
-                    'Ponto_orvalho': np.mean, 'Ponto_orvalho_max': np.max,
-                    'Ponto_orvalho_min': np.min, 'Pressao': np.mean,
-                    'Pressao_max': np.max, 'Pressao_min': np.min,
-                    'Vento_velocidade': np.mean, 'Vento_direcao': avg_wind,
-                    'Vento_rajada': np.max, 'Radiacao': np.mean,
-                    'Precipitacao': np.sum}
+                   'Temperatura_min': np.min, 'Umidade': np.mean,
+                   'Umidade_max': np.max, 'Umidade_min': np.min,
+                   'Ponto_orvalho': np.mean, 'Ponto_orvalho_max': np.max,
+                   'Ponto_orvalho_min': np.min, 'Pressao': np.mean,
+                   'Pressao_max': np.max, 'Pressao_min': np.min,
+                   'Vento_velocidade': np.mean, 'Vento_direcao': avg_wind,
+                   'Vento_rajada': np.max, 'Radiacao': np.mean,
+                   'Precipitacao': np.sum}
         self.dados = self.dados.resample(periodo).agg(metodos)
 
 
 # https://pandas.pydata.org/pandas-docs/stable/extending.html
-
