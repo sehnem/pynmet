@@ -51,12 +51,11 @@ class MetFunctions(object):
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
 
-    @property
-    def center(self):
+    def plot_t(self):
         # return the geographic center point of this DataFrame
-        lat = self._obj.latitude
-        lon = self._obj.longitude
-        return (float(lon.mean()), float(lat.mean()))
+        self._obj['Temperatura'].plot()
+        lat = self._obj.lat
+        return float(lat+10)
 
     def resample(self, periodo):
         metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,
