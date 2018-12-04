@@ -48,7 +48,6 @@ def clean_data_str(data_str):
     data_str = data_str.replace('//', '').replace('/,', ',')
 
     return data_str
-    
 
 
 def get_from_inmet(code, dia_i, dia_f):
@@ -76,7 +75,7 @@ def get_from_inmet(code, dia_i, dia_f):
     df = df.drop([' codigo_estacao', 'data', 'hora'], axis=1)
     df.columns = header
     df = df.dropna(how='all')
-    
+
     return df
 
 
@@ -91,23 +90,24 @@ def db_engine(path=None):
         if not os.path.exists(path):
             os.makedirs(path)
     engine = create_engine('sqlite:///' + path + 'inmet.db', echo=False)
-    
+
     return engine
 
 
-def update_db(code, engine):
+def update_db(code, engine, force=False):
     '''
     '''
     fmt = "%d/%m/%Y"
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
     if engine.dialect.has_table(engine, code):
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
+    if  force==False:
         dia_i = db.index.max().strftime(fmt)
     else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
-    
+
     dados = get_from_inmet(code, dia_i, dia_f)
-    
+
     if engine.dialect.has_table(engine, code):
         dados = dados[~dados.index.isin(db.index)]
 
@@ -130,24 +130,24 @@ def upgrade_db(path=None, engine=None):
     '''
     if engine==None:
         engine = db_engine()
-    
+
     if path==None:
         path = os.getenv("HOME") + '/.inmetdb.hdf'
 
     with tables.open_file(path, mode="r") as h5file:
         list(h5file.walk_groups())
         codes = h5file.root.__dict__['__members__']
-    
+
     for code in codes:
         dados = pd.read_hdf(path, code)
         dados.index = dados.index.tz_localize(None)
         dados = dados.dropna(how='all')
-        
+
         if engine.dialect.has_table(engine, code):
             db_index = pd.read_sql(code, engine, columns=['TIME'],
                                    index_col='TIME').index
             dados = dados[~dados.index.isin(db_index)]
-    
+
         dados.to_sql(code, engine, if_exists='append', index_label='TIME')
 
 
@@ -160,27 +160,26 @@ def clean_duplicated():
             db.to_sql(code, engine, if_exists='replace', index_label='TIME')
         except:
             pass
-    
 
 
-def get_data(code, local=False, db=None):
+def get_data(code, local=False, force=False, db=None):
     '''
     '''
     engine = db_engine()
-    
+
     if not local:
-        update_db(code, engine)
-    
+        update_db(code, engine, force)
+
     return read_db(code, engine)
 
 
-def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf'):
-    
+def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf', force=False):
+
     engine = db_engine()
-    
+
     for code in sites.index:
         try:
-            update_db(code, engine)
+            update_db(code, engine, force)
             print('{}: UPDATED'.format(code))
         except:
             print('{}: ERRO'.format(code))
