@@ -21,7 +21,7 @@ Download de dados de uma estação e geração do gráfico de temperatura.
   # Código da estação ex: A803
   estacao = pynmet.inmet('A803')
   estacao.dados.Temperatura.plot()
- 
+
 Os dados baixados são armazenados em um objeto que contém os dados extraídos e algumas informações da estação. Os dados são armazenados em "dados" que é um dataframe do pandas.
 
 Os dados baixados são armazenados em um arquivo no $HOME do usuário. Toda vez que é utilizado o pacote atualiza com os últimos dados. Como o Inmet só disponibiliza o período de um ano em seu site esse é o período máximo na primeira vez que se carrega a estação.
@@ -37,7 +37,7 @@ A primeira vez utilização de cada estação leva um tempo maior para o carrega
 A primeira atualização demora mais de 1h porém novas atualizações de todas as estações levam menos de 10 minutos em conexões boas.
 
 
-Contribute
+Contribua
 ========
 
 - Issue Tracker: gitlab.com/sehnem/pynmet/issues
