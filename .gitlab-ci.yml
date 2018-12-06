@@ -11,7 +11,7 @@ pages:
     paths:
       - public
   only:
-    - master
+    - tags
 
 pypi:
   cache: {}
