@@ -38,17 +38,19 @@ def b64_inmet(code, scheme):
 
     Returns
     -------
-    dni_extra : bytes, string
+    data : bytes, string
         The decoded/encoded string/code.
     """
 
     ascii_code = code.encode('ascii')
     if scheme == 'decode':
-        return base64.b64decode(ascii_code)
+        data = base64.b64decode(ascii_code)
     elif scheme == 'encode':
-        return base64.b64encode(ascii_code).decode()
+        data = base64.b64encode(ascii_code).decode()
     else:
-        pass
+        pass # TODO: raise error
+    
+    return data
 
 
 def clean_data_str(data_str):
