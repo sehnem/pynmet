@@ -25,9 +25,23 @@ sites = pd.read_csv(filepath, index_col='codigo',
 
 
 def b64_inmet(code, scheme):
-    '''
-    encode the inmet captcha code to be used as
-    '''
+    """
+    Decoding/encoding of inmet base64 codes.
+    
+    Parameters
+    ----------
+    code : string, bytes
+        String/code to be encoded/decoded.
+
+    scheme : string
+        method to be used, 'decode' or 'encode'.
+
+    Returns
+    -------
+    dni_extra : bytes, string
+        The decoded/encoded string/code.
+    """
+
     ascii_code = code.encode('ascii')
     if scheme == 'decode':
         return base64.b64decode(ascii_code)
