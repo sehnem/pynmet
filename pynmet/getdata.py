@@ -106,15 +106,26 @@ def get_from_inmet(code, dia_i, dia_f):
 
 
 def db_engine(path=None):
-    '''
-    Cria a engine do banco de dados
-    '''
+    """
+    Create the SQL database engine.
+    
+    Parameters
+    ----------
+    path : string, default None
+        Path for the database engine.
+
+    Returns
+    -------
+    data_str : Engine
+        Engine from database.
+    """
+
     if path==None:
         home = os.getenv("HOME")
         cache_f = '/.cache/pynmet/'
         path = home + cache_f
-        if not os.path.exists(path):
-            os.makedirs(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
     engine = create_engine('sqlite:///' + path + 'inmet.db', echo=False)
 
     return engine
