@@ -52,9 +52,21 @@ def b64_inmet(code, scheme):
 
 
 def clean_data_str(data_str):
-    '''
-    Limpa dados recuperados do INMET
-    '''
+    """
+    Clean string retrieved from INMET page removing html tags and invalid
+    data.
+    
+    Parameters
+    ----------
+    data_str : string
+        String retrieved from INMET page.
+
+    Returns
+    -------
+    data_str : string
+        Cleaned string.
+    """
+
     data_str = data_str.replace('\r', '').replace('\n', '')
     data_str = data_str.replace('\t', '')
     data_str = data_str.replace('<br>', '\n')
