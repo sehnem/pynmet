@@ -167,10 +167,10 @@ def read_db(code, engine):
 def upgrade_db(path=None, engine=None):
     """
     """
-    if engine == None:
+    if engine is None:
         engine = db_engine()
 
-    if path == None:
+    if path is None:
         path = os.getenv("HOME") + '/.inmetdb.hdf'
 
     with tables.open_file(path, mode="r") as h5file:
