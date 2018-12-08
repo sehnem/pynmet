@@ -1,13 +1,13 @@
 import base64
-import os
-import requests
-import tables
-import pandas as pd
 import datetime as dt
-from bs4 import BeautifulSoup
-from sqlalchemy import create_engine
+import os
 from io import StringIO
 
+import pandas as pd
+import requests
+import tables
+from bs4 import BeautifulSoup
+from sqlalchemy import create_engine
 
 pg_form = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?'
 pg_data = 'http://www.inmet.gov.br/sonabra/pg_downDadosCodigo_sim.php'
@@ -27,7 +27,7 @@ sites = pd.read_csv(filepath, index_col='codigo',
 def b64_inmet(code, scheme):
     """
     Decoding/encoding of inmet base64 codes.
-    
+
     Parameters
     ----------
     code : string, bytes
@@ -48,8 +48,8 @@ def b64_inmet(code, scheme):
     elif scheme == 'encode':
         data = base64.b64encode(ascii_code).decode()
     else:
-        pass # TODO: raise error
-    
+        pass  # TODO: raise error
+
     return data
 
 
@@ -79,16 +79,16 @@ def clean_data_str(data_str):
 
 
 def get_from_inmet(code, dia_i, dia_f):
-    '''
+    """
     Site do inmet
-    '''
+    """
     est = pg_form + b64_inmet(code, 'encode')
     session = requests.session()
     with session.get(est) as page:
         soup = BeautifulSoup(page.content, 'lxml')
-        base64Str = str(soup.findAll('img')[0])[-11:-3]
+        base64_str = str(soup.findAll('img')[0])[-11:-3]
         solved = b64_inmet(code, 'decode')
-        post_request = {'aleaValue': base64Str,
+        post_request = {'aleaValue': base64_str,
                         'dtaini': dia_i,
                         'dtafim': dia_f,
                         'aleaNum': solved}
@@ -122,7 +122,7 @@ def db_engine(path=None):
         Engine from database.
     """
 
-    if path==None:
+    if path is None:
         home = os.getenv("HOME")
         cache_f = '/.cache/pynmet/'
         path = home + cache_f
@@ -134,14 +134,14 @@ def db_engine(path=None):
 
 
 def update_db(code, engine, force=False):
-    '''
-    '''
+    """
+    """
     fmt = "%d/%m/%Y"
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
     if engine.dialect.has_table(engine, code):
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
-    if  force==False:
-        dia_i = db.index.max().strftime(fmt)
+        if not force:
+            dia_i = db.index.max().strftime(fmt)
     else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
 
@@ -154,8 +154,8 @@ def update_db(code, engine, force=False):
 
 
 def read_db(code, engine):
-    '''
-    '''
+    """
+    """
     try:
         dados = pd.read_sql(code, engine, index_col='TIME')
     except:
@@ -165,12 +165,12 @@ def read_db(code, engine):
 
 
 def upgrade_db(path=None, engine=None):
-    '''
-    '''
-    if engine==None:
+    """
+    """
+    if engine == None:
         engine = db_engine()
 
-    if path==None:
+    if path == None:
         path = os.getenv("HOME") + '/.inmetdb.hdf'
 
     with tables.open_file(path, mode="r") as h5file:
@@ -202,8 +202,8 @@ def clean_duplicated():
 
 
 def get_data(code, local=False, force=False, db=None):
-    '''
-    '''
+    """
+    """
     engine = db_engine()
 
     if not local:
@@ -213,7 +213,8 @@ def get_data(code, local=False, force=False, db=None):
 
 
 def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf', force=False):
-
+    """
+    """
     engine = db_engine()
 
     for code in sites.index:
