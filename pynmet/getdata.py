@@ -24,7 +24,7 @@ sites = pd.read_csv(filepath, index_col='codigo',
                     dtype={'codigo': str, 'alt': int})
 
 
-def b64_inmet(code, scheme):
+def b64_inmet(code, scheme='decode'):
     """
     Decoding/encoding of inmet base64 codes.
 
@@ -33,7 +33,7 @@ def b64_inmet(code, scheme):
     code : string, bytes
         String/code to be encoded/decoded.
 
-    scheme : string
+    scheme : string, default 'decode'
         method to be used, 'decode' or 'encode'.
 
     Returns
@@ -48,7 +48,7 @@ def b64_inmet(code, scheme):
     elif scheme == 'encode':
         data = base64.b64encode(ascii_code).decode()
     else:
-        pass  # TODO: raise error
+        raise ValueError("scheme argument must be 'encode' or 'decode'")
 
     return data
 
@@ -135,13 +135,25 @@ def db_engine(path=None):
 
 def update_db(code, engine, force=False):
     """
+    Update the given database based on station code.
+
+    Parameters
+    ----------
+    code : string
+        Code of inmet automatic weather station.
+
+    engine : Engine
+        Engine from database.
+
+    force : boolean, default False
+        Get all available data from INMET and overwrite database.
     """
+
     fmt = "%d/%m/%Y"
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
-    if engine.dialect.has_table(engine, code):
+    if engine.dialect.has_table(engine, code) and not force:
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
-        if not force:
-            dia_i = db.index.max().strftime(fmt)
+        dia_i = db.index.max().strftime(fmt)
     else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
 
@@ -158,7 +170,7 @@ def read_db(code, engine):
     """
     try:
         dados = pd.read_sql(code, engine, index_col='TIME')
-    except:
+    except RuntimeWarning:
         dados = pd.DataFrame(columns=header)
 
     return dados
@@ -197,11 +209,12 @@ def clean_duplicated():
             db = pd.read_sql(code, engine, index_col='TIME')
             db = db[~db.index.duplicated(keep='first')]
             db.to_sql(code, engine, if_exists='replace', index_label='TIME')
-        except:
-            pass
+        except RuntimeWarning:
+            print('It was not possible to clean {} data in the database'.format(
+                code))
 
 
-def get_data(code, local=False, force=False, db=None):
+def get_data(code, local=False, force=False):
     """
     """
     engine = db_engine()
@@ -212,7 +225,7 @@ def get_data(code, local=False, force=False, db=None):
     return read_db(code, engine)
 
 
-def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf', force=False):
+def update_all(force=False):
     """
     """
     engine = db_engine()
@@ -221,5 +234,6 @@ def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf', force=False):
         try:
             update_db(code, engine, force)
             print('{}: UPDATED'.format(code))
-        except:
-            print('{}: ERRO'.format(code))
+        except RuntimeWarning:
+            print('It was not possible to retrieve {} data from INMET'.format(
+                code))
