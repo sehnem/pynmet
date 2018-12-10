@@ -67,7 +67,7 @@ class MetFunctions(object):
                    'Vento_velocidade': np.mean, 'Vento_direcao': avg_wind,
                    'Vento_rajada': np.max, 'Radiacao': np.mean,
                    'Precipitacao': np.sum}
-        self = self.resample(periodo).agg(metodos)
+        return self.resample(periodo).agg(metodos)
 
 
 # https://pandas.pydata.org/pandas-docs/stable/extending.html
