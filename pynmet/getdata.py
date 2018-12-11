@@ -1,13 +1,13 @@
 import base64
-import os
-import requests
-import tables
-import pandas as pd
 import datetime as dt
-from bs4 import BeautifulSoup
-from sqlalchemy import create_engine
+import os
 from io import StringIO
 
+import pandas as pd
+import requests
+import tables
+from bs4 import BeautifulSoup
+from sqlalchemy import create_engine
 
 pg_form = 'http://www.inmet.gov.br/sonabra/pg_dspDadosCodigo_sim.php?'
 pg_data = 'http://www.inmet.gov.br/sonabra/pg_downDadosCodigo_sim.php'
@@ -24,23 +24,51 @@ sites = pd.read_csv(filepath, index_col='codigo',
                     dtype={'codigo': str, 'alt': int})
 
 
-def b64_inmet(code, scheme):
-    '''
-    encode the inmet captcha code to be used as
-    '''
+def b64_inmet(code, scheme='decode'):
+    """
+    Decoding/encoding of inmet base64 codes.
+
+    Parameters
+    ----------
+    code : string, bytes
+        String/code to be encoded/decoded.
+
+    scheme : string, default 'decode'
+        method to be used, 'decode' or 'encode'.
+
+    Returns
+    -------
+    data : bytes, string
+        The decoded/encoded string/code.
+    """
+
     ascii_code = code.encode('ascii')
     if scheme == 'decode':
-        return base64.b64decode(ascii_code)
+        data = base64.b64decode(ascii_code)
     elif scheme == 'encode':
-        return base64.b64encode(ascii_code).decode()
+        data = base64.b64encode(ascii_code).decode()
     else:
-        pass
+        raise ValueError("scheme argument must be 'encode' or 'decode'")
+
+    return data
 
 
 def clean_data_str(data_str):
-    '''
-    Limpa dados recuperados do INMET
-    '''
+    """
+    Clean string retrieved from INMET page removing html tags and invalid
+    data.
+    
+    Parameters
+    ----------
+    data_str : string
+        String retrieved from INMET page.
+
+    Returns
+    -------
+    data_str : string
+        Cleaned string.
+    """
+
     data_str = data_str.replace('\r', '').replace('\n', '')
     data_str = data_str.replace('\t', '')
     data_str = data_str.replace('<br>', '\n')
@@ -51,16 +79,16 @@ def clean_data_str(data_str):
 
 
 def get_from_inmet(code, dia_i, dia_f):
-    '''
+    """
     Site do inmet
-    '''
+    """
     est = pg_form + b64_inmet(code, 'encode')
     session = requests.session()
     with session.get(est) as page:
         soup = BeautifulSoup(page.content, 'lxml')
-        base64Str = str(soup.findAll('img')[0])[-11:-3]
+        base64_str = str(soup.findAll('img')[0])[-11:-3]
         solved = b64_inmet(code, 'decode')
-        post_request = {'aleaValue': base64Str,
+        post_request = {'aleaValue': base64_str,
                         'dtaini': dia_i,
                         'dtafim': dia_f,
                         'aleaNum': solved}
@@ -80,28 +108,51 @@ def get_from_inmet(code, dia_i, dia_f):
 
 
 def db_engine(path=None):
-    '''
-    Cria a engine do banco de dados
-    '''
-    if path==None:
+    """
+    Create the SQL database engine.
+    
+    Parameters
+    ----------
+    path : string, default None
+        Path for the database engine.
+
+    Returns
+    -------
+    data_str : Engine
+        Engine from database.
+    """
+
+    if path is None:
         home = os.getenv("HOME")
         cache_f = '/.cache/pynmet/'
         path = home + cache_f
-        if not os.path.exists(path):
-            os.makedirs(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
     engine = create_engine('sqlite:///' + path + 'inmet.db', echo=False)
 
     return engine
 
 
 def update_db(code, engine, force=False):
-    '''
-    '''
+    """
+    Update the given database based on station code.
+
+    Parameters
+    ----------
+    code : string
+        Code of inmet automatic weather station.
+
+    engine : Engine
+        Engine from database.
+
+    force : boolean, default False
+        Get all available data from INMET and overwrite database.
+    """
+
     fmt = "%d/%m/%Y"
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
-    if engine.dialect.has_table(engine, code):
+    if engine.dialect.has_table(engine, code) and not force:
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
-    if  force==False:
         dia_i = db.index.max().strftime(fmt)
     else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
@@ -115,23 +166,23 @@ def update_db(code, engine, force=False):
 
 
 def read_db(code, engine):
-    '''
-    '''
+    """
+    """
     try:
         dados = pd.read_sql(code, engine, index_col='TIME')
-    except:
+    except RuntimeWarning:
         dados = pd.DataFrame(columns=header)
 
     return dados
 
 
 def upgrade_db(path=None, engine=None):
-    '''
-    '''
-    if engine==None:
+    """
+    """
+    if engine is None:
         engine = db_engine()
 
-    if path==None:
+    if path is None:
         path = os.getenv("HOME") + '/.inmetdb.hdf'
 
     with tables.open_file(path, mode="r") as h5file:
@@ -158,13 +209,14 @@ def clean_duplicated():
             db = pd.read_sql(code, engine, index_col='TIME')
             db = db[~db.index.duplicated(keep='first')]
             db.to_sql(code, engine, if_exists='replace', index_label='TIME')
-        except:
-            pass
+        except RuntimeWarning:
+            print('It was not possible to clean {} data in the database'.format(
+                code))
 
 
-def get_data(code, local=False, force=False, db=None):
-    '''
-    '''
+def get_data(code, local=False, force=False):
+    """
+    """
     engine = db_engine()
 
     if not local:
@@ -173,13 +225,15 @@ def get_data(code, local=False, force=False, db=None):
     return read_db(code, engine)
 
 
-def update_all(db=os.getenv("HOME") + '/.inmetdb.hdf', force=False):
-
+def update_all(force=False):
+    """
+    """
     engine = db_engine()
 
     for code in sites.index:
         try:
             update_db(code, engine, force)
             print('{}: UPDATED'.format(code))
-        except:
-            print('{}: ERRO'.format(code))
+        except RuntimeWarning:
+            print('It was not possible to retrieve {} data from INMET'.format(
+                code))
