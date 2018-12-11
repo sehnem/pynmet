@@ -7,7 +7,7 @@ pages:
     - python setup.py install
     - rm -rf docs/source && sphinx-apidoc -e -f -o docs/source/ pynmet/
     - cd docs/ && make html && cd ../
-    - sphinx-versioning -r feature_branch build docs docs/_build/html
+    - sphinx-versioning build docs docs/_build/html
     - mv docs/_build/html/ public/
   artifacts:
     paths:
