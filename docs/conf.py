@@ -19,11 +19,13 @@
 #
 # sys.path.insert(0, os.path.abspath('.'))
 
-sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
-
 import os
 import sys
 import time
+
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
+
+import versioneer
 #import pynmet
 
 # sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
