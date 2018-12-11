@@ -25,6 +25,7 @@ import time
 import pynmet
 
 # sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
