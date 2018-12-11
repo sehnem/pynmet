@@ -17,12 +17,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
 # sys.path.insert(0, os.path.abspath('.'))
+
+import os
+import sys
+import time
 import pynmet
 
-
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -48,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pynmet'
-copyright = '2018, pynmet Developers'
+copyright = '{}, pynmet Developers'.format(time.strftime('%Y'))
 author = 'Josué M. Sehnem'
 
 # The version info for the project you're documenting, acts as replacement for
