@@ -5,10 +5,9 @@ pages:
     - pip install sphinx numpy sphinx_rtd_theme versioneer sqlalchemy
     - pip install git+https://github.com/leokoppel/sphinxcontrib-versioning
     - python setup.py install
-    #- rm -rf docs/source && sphinx-apidoc -e -f -o docs/source/ pynmet/
-    - rm -rf docs/source
-    - sphinx-versioning -r feature_branch build docs docs/_build/html
+    - rm -rf docs/source && sphinx-apidoc -e -f -o docs/source/ pynmet/
     - cd docs/ && make html && cd ../
+    - sphinx-versioning -r feature_branch build docs docs/_build/html
     - mv docs/_build/html/ public/
   artifacts:
     paths:
