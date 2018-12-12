@@ -78,6 +78,18 @@ def clean_data_str(data_str):
     return data_str
 
 
+def inmet_string_to_df(data_str):
+    data_str = clean_data_str(data_str)
+    df = pd.read_csv(StringIO(data_str))
+    df[['data', 'hora']] = df[['data', 'hora']].astype(str)
+    data = pd.to_datetime(df['data'] + df['hora'], format="%d/%m/%Y%H")
+    df.set_index(data, inplace=True)
+    df = df.drop([' codigo_estacao', 'data', 'hora'], axis=1)
+    df.columns = header
+    df = df.dropna(how='all')
+    
+    return df
+
 def get_from_inmet(code, dia_i, dia_f):
     """
     Site do inmet
@@ -93,18 +105,14 @@ def get_from_inmet(code, dia_i, dia_f):
                         'dtafim': dia_f,
                         'aleaNum': solved}
         session.post(est, post_request)
-        data_str = session.get(pg_data).content.decode()
-
-    data_str = clean_data_str(data_str)
-    df = pd.read_csv(StringIO(data_str))
-    df[['data', 'hora']] = df[['data', 'hora']].astype(str)
-    data = pd.to_datetime(df['data'] + df['hora'], format="%d/%m/%Y%H")
-    df.set_index(data, inplace=True)
-    df = df.drop([' codigo_estacao', 'data', 'hora'], axis=1)
-    df.columns = header
-    df = df.dropna(how='all')
-
-    return df
+        try: #exceção para estação sem dados no site do inmet
+            data_str = session.get(pg_data).content.decode()
+            df = inmet_string_to_df(data_str)
+            return df
+        except:
+            df = pd.DataFrame(columns=header)
+            return df
+            pass
 
 
 def db_engine(path=None):
@@ -153,7 +161,10 @@ def update_db(code, engine, force=False):
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
     if engine.dialect.has_table(engine, code) and not force:
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
-        dia_i = db.index.max().strftime(fmt)
+        if len(db.index==0):
+            dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
+        else:
+            dia_i = db.index.max().strftime(fmt) # TODO: warning for no index
     else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
 
@@ -170,7 +181,7 @@ def read_db(code, engine):
     """
     try:
         dados = pd.read_sql(code, engine, index_col='TIME')
-    except RuntimeWarning:
+    except:
         dados = pd.DataFrame(columns=header)
 
     return dados
@@ -234,6 +245,6 @@ def update_all(force=False):
         try:
             update_db(code, engine, force)
             print('{}: UPDATED'.format(code))
-        except RuntimeWarning:
+        except:
             print('It was not possible to retrieve {} data from INMET'.format(
                 code))
