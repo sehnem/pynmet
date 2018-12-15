@@ -90,6 +90,7 @@ def inmet_string_to_df(data_str):
     
     return df
 
+
 def get_from_inmet(code, dia_i, dia_f):
     """
     Site do inmet
@@ -105,7 +106,7 @@ def get_from_inmet(code, dia_i, dia_f):
                         'dtafim': dia_f,
                         'aleaNum': solved}
         session.post(est, post_request)
-        try: #exceção para estação sem dados no site do inmet
+        try:  # exceção para estação sem dados no site do inmet
             data_str = session.get(pg_data).content.decode()
             df = inmet_string_to_df(data_str)
             return df
@@ -161,10 +162,10 @@ def update_db(code, engine, force=False):
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
     if engine.dialect.has_table(engine, code) and not force:
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
-        if len(db.index==0):
+        if len(db.index) == 0:
             dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
         else:
-            dia_i = db.index.max().strftime(fmt) # TODO: warning for no index
+            dia_i = db.index.max().strftime(fmt)  # TODO: warning for no index
     else:
         dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
 
