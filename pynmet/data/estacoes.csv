@@ -315,7 +315,7 @@ A334,Monteiro-A334,81914.0,22/08/2007,-7.894465,-37.124704,606,0.0,-10800.0,Amer
 A321,Patos-A321,81913.0,21/07/2007,-7.079836,-37.272817,264,0.0,-10800.0,America/Fortaleza,Brasilia Standard Time
 A333,São Gonçalo-A333,81774.0,06/11/2007,-6.835777,-38.311583,237,0.0,-10800.0,America/Fortaleza,Brasilia Standard Time
 A309,Arco Verde-A309,81953.0,20/11/2004,-8.433544,-37.055477,684,0.0,-10800.0,America/Recife,Brasilia Standard Time
-A329,Cabrobó-A329,81951.0,04/09/2007,-8504,-39.31528,343,0.0,-10800.0,America/Recife,Brasilia Standard Time
+A329,Cabrobó-A329,81951.0,04/09/2007,-8.504,-39.31528,343,0.0,-10800.0,America/Recife,Brasilia Standard Time
 A341,Caruaru-A341,81956.0,21/11/2007,-8.236069,-35.98555,570,0.0,-10800.0,America/Recife,Brasilia Standard Time
 A351,Floresta-A351,81952.0,15/09/2008,-8.598785,-38.584062,327,0.0,-10800.0,America/Recife,Brasilia Standard Time
 A322,Garanhuns-A322,81955.0,08/07/2007,-8.91095,-36.493381,828,0.0,-10800.0,America/Recife,Brasilia Standard Time
@@ -496,7 +496,7 @@ A733,Jales-A733,86814.0,23/08/2007,-20.165025,-50.595134,460,3600.0,-10800.0,Ame
 A735,José Bonifácio-A735,86839.0,04/09/2007,-21.085675,-49.920388,408,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
 A727,Lins-A727,86840.0,20/09/2006,-21.666045,-49.734854,461,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
 A763,Marília-A763,,13/05/2017,-22.235222,-49.965111,660,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
-A716,Ourinhos-A716,86866.0,30/08/2006,-22949,-49.894546,443,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
+A716,Ourinhos-A716,86866.0,30/08/2006,-22.949,-49.894546,443,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
 A726,Piracicaba-A726,86868.0,26/09/2006,-22.703132,-47.623317,566,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
 A747,Pradópolis-A747,86842.0,20/04/2008,-21.338432,-48.114007,540,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
 A707,Presidente Prudente-A707,86863.0,03/02/2003,-22.119867,-51.408637,432,3600.0,-10800.0,America/Sao_Paulo,Brasilia Summer Time
