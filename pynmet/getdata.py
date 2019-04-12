@@ -132,12 +132,11 @@ def db_engine(path=None):
     """
 
     if path is None:
-        home = os.getenv("HOME")
-        cache_f = '/.cache/pynmet/'
-        path = home + cache_f
+        home = os.path.expanduser('~')
+        path = os.path.join(home, '.cache', 'pynmet')
     if not os.path.exists(path):
         os.makedirs(path)
-    engine = create_engine('sqlite:///' + path + 'inmet.db', echo=False)
+    engine = create_engine('sqlite:///' + os.path.join(path, 'inmet.db'), echo=False)
 
     return engine
 
