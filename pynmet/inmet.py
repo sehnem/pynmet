@@ -42,7 +42,9 @@ def inmet(code, local=False):
         df.lat = sites.loc[code].lat
         df.lon = sites.loc[code].lon
         df.alt = sites.loc[code].alt
-        df.nome = sites.loc[code].nome[:-5]
+        df.nome = sites.loc[code].nome
+        df.cidade = sites.loc[code].cidade
+        df.UF = sites.loc[code].UF
         return df
 
 
