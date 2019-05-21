@@ -5,7 +5,6 @@ from io import StringIO
 
 import pandas as pd
 import requests
-import tables
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 
@@ -84,9 +83,10 @@ def inmet_string_to_df(data_str):
     df[['data', 'hora']] = df[['data', 'hora']].astype(str)
     data = pd.to_datetime(df['data'] + df['hora'], format="%d/%m/%Y%H")
     df.set_index(data, inplace=True)
-    df = df.drop([' codigo_estacao', 'data', 'hora'], axis=1)
+    df.drop([' codigo_estacao', 'data', 'hora'], axis=1, inplace=True)
     df.columns = header
-    df = df.dropna(how='all')
+    df.dropna(how='all', inplace=True)
+    df.sort_index(inplace=True)
     
     return df
 
@@ -159,14 +159,19 @@ def update_db(code, engine, force=False):
 
     fmt = "%d/%m/%Y"
     dia_f = (dt.date.today() + dt.timedelta(1)).strftime(fmt)
+    u_ano = dt.date.today() - dt.timedelta(days=365)
     if engine.dialect.has_table(engine, code) and not force:
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
         if len(db.index) == 0:
-            dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
+            dia_i = (u_ano).strftime(fmt)
         else:
-            dia_i = db.index.max().strftime(fmt)  # TODO: warning for no index
+            dia_u = db.index.max()
+            if dia_u.date() < (u_ano):
+                dia_i = (u_ano).strftime(fmt)
+            else:
+                dia_i = dia_u.strftime(fmt)  # TODO: warning for no index
     else:
-        dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
+        dia_i = (u_ano).strftime(fmt)
 
     dados = get_from_inmet(code, dia_i, dia_f)
 
@@ -190,6 +195,8 @@ def read_db(code, engine):
 def upgrade_db(path=None, engine=None):
     """
     """
+    import tables
+    
     if engine is None:
         engine = db_engine()
 
