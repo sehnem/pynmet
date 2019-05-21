@@ -48,16 +48,13 @@ def inmet(code, local=False):
         return df
 
 
-@pd.api.extensions.register_dataframe_accessor("met")
+@pd.api.extensions.register_dataframe_accessor("pynmet")
 class MetFunctions(object):
     def __init__(self, pandas_obj):
         self._obj = pandas_obj
 
     def plot_t(self):
-        # return the geographic center point of this DataFrame
         self._obj['Temperatura'].plot()
-        lat = self._obj.lat
-        return float(lat+10)
 
     def resample(self, periodo):
         metodos = {'Temperatura': np.mean, 'Temperatura_max': np.max,
@@ -69,7 +66,10 @@ class MetFunctions(object):
                    'Vento_velocidade': np.mean, 'Vento_direcao': avg_wind,
                    'Vento_rajada': np.max, 'Radiacao': np.mean,
                    'Precipitacao': np.sum}
-        return self.resample(periodo).agg(metodos)
-
-
+        return self._obj.resample(periodo).agg(metodos)
+    
+    def fill(self):
+        fill_idx = pd.date_range(self._obj.index.min(), self._obj.index.max(),
+                                 freq='1H')
+        return self._obj.join(fill_idx.to_frame(), how='outer')
 # https://pandas.pydata.org/pandas-docs/stable/extending.html
