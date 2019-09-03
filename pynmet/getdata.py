@@ -99,7 +99,7 @@ def get_from_inmet(code, dia_i, dia_f):
     session = requests.session()
     with session.get(est) as page:
         soup = BeautifulSoup(page.content, 'lxml')
-        base64_str = str(soup.findAll('img')[0])[-11:-3]
+        base64_str = str(soup.findAll('img')[0])[-11:-3] # Página inacessivel
         solved = b64_inmet(code, 'decode')
         post_request = {'aleaValue': base64_str,
                         'dtaini': dia_i,
@@ -136,7 +136,8 @@ def db_engine(path=None):
         path = os.path.join(home, '.cache', 'pynmet')
     if not os.path.exists(path):
         os.makedirs(path)
-    engine = create_engine('sqlite:///' + os.path.join(path, 'inmet.db'), echo=False)
+    f_path = os.path.join(path, 'inmet.db')
+    engine = create_engine('sqlite:///' + f_path, echo=False)
 
     return engine
 
