@@ -87,7 +87,7 @@ def inmet_string_to_df(data_str):
     df.columns = header
     df.dropna(how='all', inplace=True)
     df.sort_index(inplace=True)
-    
+
     return df
 
 
@@ -99,7 +99,7 @@ def get_from_inmet(code, dia_i, dia_f):
     session = requests.session()
     with session.get(est) as page:
         soup = BeautifulSoup(page.content, 'lxml')
-        base64_str = str(soup.findAll('img')[0])[-11:-3]
+        base64_str = str(soup.findAll('img')[0])[-11:-3] # Página inacessivel
         solved = b64_inmet(code, 'decode')
         post_request = {'aleaValue': base64_str,
                         'dtaini': dia_i,
@@ -136,7 +136,8 @@ def db_engine(path=None):
         path = os.path.join(home, '.cache', 'pynmet')
     if not os.path.exists(path):
         os.makedirs(path)
-    engine = create_engine('sqlite:///' + os.path.join(path, 'inmet.db'), echo=False)
+    f_path = os.path.join(path, 'inmet.db')
+    engine = create_engine('sqlite:///' + f_path, echo=False)
 
     return engine
 
@@ -163,7 +164,7 @@ def update_db(code, engine, force=False):
     if engine.dialect.has_table(engine, code) and not force:
         db = pd.read_sql(code, engine, columns=['TIME'], index_col='TIME')
         if len(db.index) == 0:
-            dia_i = (u_ano).strftime(fmt)
+            dia_i = (dt.date.today() - dt.timedelta(days=365)).strftime(fmt)
         else:
             dia_u = db.index.max()
             if dia_u.date() < (u_ano):
